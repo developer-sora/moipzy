@@ -5,11 +5,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useWeather } from "@/hooks/useWeather";
 import { cn } from "@/lib/utils";
 import { getWeatherInfo } from "@/lib/weather";
+import { LocateIcon } from "lucide-react";
 import { useEffect } from "react";
 import { toast } from "sonner";
 
 export default function WeatherCard() {
-  const { weather, loading, error } = useWeather();
+  const { weather, loading, error, refetch } = useWeather();
 
   useEffect(() => {
     if (error) {
@@ -18,7 +19,7 @@ export default function WeatherCard() {
   }, [error]);
 
   if (loading) {
-    return <Skeleton className="h-[145px] rounded-xl" />;
+    return <Skeleton className="h-[106px] rounded-xl" />;
   }
 
   if (error?.type === "weather") {
@@ -41,13 +42,20 @@ export default function WeatherCard() {
   );
 
   return (
-    <Card className={cn("h-[145px] w-full", themeColor)}>
+    <Card className={cn("w-full", themeColor)}>
       <CardHeader className="flex justify-between">
-        <CardTitle>{weather.name}</CardTitle>
-        <WeatherIcon className="w-6 h-6" />
+        <CardTitle className="flex items-center gap-2">
+          {weather.name}
+          <LocateIcon
+            className="w-4 h-4 cursor-pointer"
+            onClick={() => refetch()}
+            aria-label="위치 정보 가져오기"
+          />
+        </CardTitle>
+        <WeatherIcon className="w-5 h-5" aria-label="날씨 아이콘" />
       </CardHeader>
       <CardContent className="flex justify-between">
-        <p className="text-5xl">{Math.round(weather.main.temp)}°</p>
+        <p className="text-3xl">{Math.round(weather.main.temp)}°</p>
         <div>
           <p className="text-right">{weather.weather[0].description}</p>
           <p>

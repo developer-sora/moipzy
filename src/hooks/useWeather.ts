@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { WeatherData, WeatherError, WeatherHookError } from "@/types/weather";
+import { usePathname, useRouter } from "next/navigation";
 
 const defaultCity = "seoul";
 
@@ -66,19 +67,32 @@ async function getCurrentWeather(
   return response.json();
 }
 
+function updateWeatherParams(weatherData: WeatherData) {
+  const params = new URLSearchParams();
+  params.set("temp", Math.round(weatherData.main.temp).toString());
+  params.set("temp_max", Math.round(weatherData.main.temp_max).toString());
+  params.set("temp_min", Math.round(weatherData.main.temp_min).toString());
+  params.set("status", weatherData.weather[0].main);
+
+  return params;
+}
+
 export function useWeather() {
   const [weather, setWeather] = useState<WeatherData | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<WeatherHookError | null>(null);
+  const pathname = usePathname();
+  const { replace } = useRouter();
 
   const fetchWeather = async () => {
-    setLoading(true);
     setError(null);
 
     const getWeatherFallback = async () => {
       try {
         const weatherData = await getCurrentWeather();
         setWeather(weatherData);
+        const params = updateWeatherParams(weatherData);
+        replace(`${pathname}?${params.toString()}`);
       } catch {
         setError({
           message: "날씨를 가져오는데 실패했습니다.",
@@ -92,6 +106,8 @@ export function useWeather() {
       const { latitude, longitude } = position.coords;
       const weatherData = await getCurrentWeather(latitude, longitude);
       setWeather(weatherData);
+      const params = updateWeatherParams(weatherData);
+      replace(`${pathname}?${params.toString()}`);
     } catch (error) {
       if (error instanceof GeolocationError) {
         setError({

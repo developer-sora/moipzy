@@ -15,7 +15,7 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body className="flex justify-center">
-        <div className="max-w-[480px] w-full min-h-screen flex flex-col items-center border-l-1 border-r-1 border-blue-400">
+        <div className="max-w-[480px] w-full min-h-screen flex flex-col items-center">
           {children}
         </div>
         <Toaster position="top-right" />

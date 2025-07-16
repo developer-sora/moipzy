@@ -1,9 +1,11 @@
+import Chat from "@/components/features/chat/Chat";
 import WeatherCard from "@/components/features/weather/WeatherCard";
 
-export default function Chat() {
+export default function Page() {
   return (
-    <div className="w-full px-8 mt-10">
+    <div className="flex flex-col w-full px-8 mt-6 gap-4">
       <WeatherCard />
+      <Chat />
     </div>
   );
 }
