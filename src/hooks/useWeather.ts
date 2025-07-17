@@ -2,8 +2,6 @@ import { useState, useEffect } from "react";
 import { WeatherData, WeatherError, WeatherHookError } from "@/types/weather";
 import { usePathname, useRouter } from "next/navigation";
 
-const defaultCity = "seoul";
-
 class GeolocationError extends Error {
   constructor(message: string) {
     super(message);
@@ -43,6 +41,8 @@ function getUserLocation(): Promise<GeolocationPosition> {
     );
   });
 }
+
+const defaultCity = "seoul";
 
 // 현재 날씨 가져오기
 async function getCurrentWeather(

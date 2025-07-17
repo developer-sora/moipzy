@@ -1,28 +1,43 @@
 "use client";
 
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowUp } from "lucide-react";
-import React from "react";
+import React, { useState } from "react";
 
-export default function ChatInput() {
+export default React.memo(function ChatInput({
+  onSend,
+  disabled,
+}: {
+  onSend: (value: string) => void;
+  disabled?: boolean;
+}) {
   const [value, setValue] = useState("");
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (value.trim() && !disabled) {
+      onSend(value);
+    }
+    setValue("");
+  };
+
   return (
-    <div className="relative">
+    <form onSubmit={handleSubmit} className="relative">
       <Input
         type="text"
-        placeholder="Ask anything..."
+        placeholder="메시지를 입력해주세요..."
         value={value}
         onChange={(e) => setValue(e.target.value)}
+        className="pr-10"
       />
       <Button
-        className="w-6 h-6 absolute rounded-full right-2 top-1.5"
-        disabled={!value.trim()}
+        type="submit"
+        className="w-6 h-6 absolute rounded-full right-3 top-1/2 -translate-y-1/2"
+        disabled={!value.trim() || disabled}
       >
         <ArrowUp className="w-4 h-4" />
       </Button>
-    </div>
+    </form>
   );
-}
+});
