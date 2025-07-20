@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 
 interface Message {
@@ -38,41 +38,6 @@ ${
 스타일도 챙기면서 쾌적한 하루를 보낼 수 있도록 도와주세요.`,
 });
 
-const streamMessage = async (
-  messages: Message[],
-  onChunk: (text: string) => void
-) => {
-  try {
-    const response = await fetch("/api/chat22", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ messages }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`서버 응답 오류: ${response.status}`);
-    }
-
-    const reader = response.body?.getReader();
-    const decoder = new TextDecoder();
-    let done = false;
-
-    while (!done && reader) {
-      const { value, done: doneReading } = await reader.read();
-      done = doneReading;
-      const chunkValue = decoder.decode(value);
-      onChunk(chunkValue);
-    }
-  } catch (error) {
-    console.error("Stream message error:", error);
-    throw new Error(
-      "AI 응답을 불러오지 못했습니다. 잠시 후 다시 시도해주세요."
-    );
-  }
-};
-
 const extractWeatherFromParams = (
   searchParams: URLSearchParams
 ): WeatherParams | null => {
@@ -90,25 +55,80 @@ const extractWeatherFromParams = (
 
 export function useChat() {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [fetchLoading, setFetchLoading] = useState(true);
+  const [messageLoading, setMessageLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const searchParams = useSearchParams();
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  const streamMessage = async (
+    messages: Message[],
+    onChunk: (text: string) => void
+  ) => {
+    try {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+
+      abortControllerRef.current = new AbortController();
+
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ messages }),
+        signal: abortControllerRef.current.signal,
+      });
+
+      if (!response.ok) {
+        throw new Error(`서버 응답 오류: ${response.status}`);
+      }
+
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      let done = false;
+
+      while (!done && reader) {
+        const { value, done: doneReading } = await reader.read();
+        done = doneReading;
+        const chunkValue = decoder.decode(value);
+        onChunk(chunkValue);
+      }
+    } catch (error) {
+      // AbortError는 정상적인 취소이므로 에러로 처리하지 않음
+      if (error instanceof Error && error.name === "AbortError") {
+        console.log("요청이 취소되었습니다.");
+        return; // 에러를 throw하지 않고 정상 종료
+      }
+      console.error("Stream message error:", error);
+      throw new Error(
+        "AI 응답을 불러오지 못했습니다. 잠시 후 다시 시도해주세요."
+      );
+    }
+  };
 
   // 첫 진입 시 날씨 기반 코디 추천
   useEffect(() => {
-    const weatherParams = extractWeatherFromParams(searchParams);
-    const systemPrompt = createWeatherSystemPrompt(weatherParams);
+    const initializeChat = async () => {
+      const weatherParams = extractWeatherFromParams(searchParams);
+      const systemPrompt = createWeatherSystemPrompt(weatherParams);
 
-    setMessages([systemPrompt]);
-    setLoading(true);
+      setMessages([systemPrompt]);
+      setFetchLoading(true);
+      setMessageLoading(true);
 
-    const aiMessage = { role: "assistant", content: "" } as Message;
+      const aiMessage = { role: "assistant", content: "" } as Message;
 
-    streamMessage([systemPrompt], (chunk) => {
-      aiMessage.content += chunk;
-      setMessages([systemPrompt, { ...aiMessage }]);
-    });
-    setLoading(false);
+      await streamMessage([systemPrompt], (chunk) => {
+        aiMessage.content += chunk;
+        setMessages([systemPrompt, { ...aiMessage }]);
+        setFetchLoading(false);
+      });
+      setMessageLoading(false);
+    };
+
+    initializeChat();
   }, [searchParams]);
 
   // 유저가 입력해서 보낼 때
@@ -118,22 +138,35 @@ export function useChat() {
       const userMessage = { role: "user", content: value } as Message;
       const newMessages = [...messages, userMessage];
       setMessages(newMessages);
-      setLoading(true);
+      setFetchLoading(true);
+      setMessageLoading(true);
 
       const aiMessage = { role: "assistant", content: "" } as Message;
-      streamMessage(newMessages, (chunk) => {
+      await streamMessage(newMessages, (chunk) => {
         aiMessage.content += chunk;
         setMessages([...newMessages, { ...aiMessage }]);
+        setFetchLoading(false);
       });
-      setLoading(false);
+      setMessageLoading(false);
     },
     [messages]
   );
 
+  const handleStop = useCallback(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+    setFetchLoading(false);
+    setMessageLoading(false);
+  }, []);
+
   return {
     messages,
     handleSend,
-    loading,
+    handleStop,
+    fetchLoading,
+    messageLoading,
     error,
   };
 }
