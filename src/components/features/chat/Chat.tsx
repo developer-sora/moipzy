@@ -108,7 +108,7 @@ function AIChat({ content, isLast }: { content: string; isLast: boolean }) {
     <article
       className={cn(
         "prose prose-sm mb-2",
-        isLast && "min-h-[calc(100dvh-260px)]"
+        isLast && "min-h-[calc(100dvh-346px)]"
       )}
     >
       <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
