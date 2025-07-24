@@ -1,8 +1,14 @@
+import GoogleLogin from "@/components/common/googleLogin/GoogleLogin";
 import Link from "next/link";
+import { createClientForServer } from "@/utils/supabase/server";
 
-export default function Home() {
+export default async function Home() {
+  const supabase = await createClientForServer();
+  const session = await supabase.auth.getUser();
+
+  console.log(session);
   return (
-    <div className="flex flex-col justify-between h-full pt-10 pb-10">
+    <div className="flex flex-col justify-between h-full pt-30 pb-20">
       <header>
         <h1 className="scroll-m-20 text-center text-4xl font-extrabold tracking-tight text-balance">
           Moipzy
@@ -12,8 +18,10 @@ export default function Home() {
         </p>
       </header>
       <div className="flex flex-col gap-4">
-        <button>구글 로그인</button>
-        <Link href="/chat">로그인 없이 시작하기</Link>
+        <GoogleLogin />
+        <Link href="/chat" className="text-slate-400 underline">
+          로그인 없이 시작하기
+        </Link>
       </div>
     </div>
   );

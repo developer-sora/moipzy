@@ -3,8 +3,8 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useWeather } from "@/hooks/useWeather";
-import { cn } from "@/lib/utils";
-import { getWeatherInfo } from "@/lib/weather";
+import { cn } from "@/utils/cn";
+import { getWeatherInfo } from "@/utils/weather";
 import { LocateIcon } from "lucide-react";
 import { useEffect } from "react";
 import { toast } from "sonner";
