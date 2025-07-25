@@ -1,6 +1,6 @@
-import BottomTap from "@/components/common/bottomTap/BottomTap";
+import BottomTab from "@/components/common/bottomTab/BottomTab";
 
-export default function RootLayout({
+export default function Layout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -8,7 +8,7 @@ export default function RootLayout({
   return (
     <div className="flex flex-col w-full px-8 pt-3 gap-3 h-screen">
       {children}
-      <BottomTap />
+      <BottomTab />
     </div>
   );
 }

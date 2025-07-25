@@ -14,10 +14,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko">
-      <body className="flex justify-center">
-        <div className="max-w-[480px] w-full min-h-screen flex flex-col items-center">
-          {children}
-        </div>
+      <body className="max-w-[480px] mx-auto min-h-screen">
+        {/* <div className="max-w-[480px] w-full min-h-screen flex flex-col items-center"> */}
+        {children}
+        {/* </div> */}
         <Toaster position="top-right" />
       </body>
     </html>

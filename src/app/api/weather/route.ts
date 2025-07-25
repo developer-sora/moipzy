@@ -37,7 +37,12 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const response = await fetch(url);
+    console.log("fetching weather API:", url);
+    const response = await fetch(url, {
+      next: {
+        revalidate: 60 * 60 * 1, // 1시간
+      },
+    });
 
     if (!response.ok) {
       const error = await response.json();

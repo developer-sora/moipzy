@@ -13,6 +13,28 @@ export async function GET(request: Request) {
     const supabase = await createClientForServer();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("id")
+          .eq("id", user.id)
+          .single();
+
+        if (!profile) {
+          await supabase.from("profiles").insert({
+            id: user.id,
+            nickname: "새 유저",
+            avatar_url: null,
+            age: null,
+            gender: null,
+          });
+        }
+      }
+
       const forwardedHost = request.headers.get("x-forwarded-host"); // original origin before load balancer
       const isLocalEnv = process.env.NODE_ENV === "development";
       if (isLocalEnv) {
