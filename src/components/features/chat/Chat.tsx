@@ -6,8 +6,8 @@ import { useChat } from "@/hooks/useChat";
 import { Loader } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { cn } from "@/utils/cn";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { cn } from "@/lib/utils";
 
 export default function Chat() {
   const {

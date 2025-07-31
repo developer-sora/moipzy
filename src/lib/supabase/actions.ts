@@ -30,6 +30,12 @@ const signOut = async () => {
   await supabase.auth.signOut();
 };
 
+const withdraw = async (userId:string) => {
+  const supabase = await createClientForServer();
+  const { error } = await supabase.auth.admin.deleteUser(userId);
+  if (error) throw error;
+}
+
 const signInWithGoogle = signInWith("google");
 
-export { signInWithGoogle, signOut };
+export { signInWithGoogle, signOut, withdraw };

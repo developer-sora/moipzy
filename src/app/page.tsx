@@ -1,6 +1,6 @@
 import GoogleLogin from "@/components/common/googleLogin/GoogleLogin";
 import Link from "next/link";
-import { createClientForServer } from "@/utils/supabase/server";
+import { createClientForServer } from "@/lib/supabase/server";
 
 export default async function Home() {
   const supabase = await createClientForServer();

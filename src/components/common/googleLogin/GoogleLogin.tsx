@@ -1,6 +1,6 @@
 "use client";
 
-import { signInWithGoogle } from "@/utils/supabase/actions";
+import { signInWithGoogle } from "@/lib/supabase/actions";
 import { Loader2 } from "lucide-react";
 import React, { useState } from "react";
 
