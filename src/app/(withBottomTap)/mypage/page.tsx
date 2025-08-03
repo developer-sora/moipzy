@@ -30,7 +30,7 @@ export default async function Page() {
     <main className="h-full">
       <Profile profile={profile} />
       <hr className="h-2 bg-slate-100 border-0" />
-      <ProfileMenu />
+      <ProfileMenu userId={user.id} />
     </main>
   );
 }

@@ -1,6 +1,6 @@
 "use server";
 
-import { Provider } from "@supabase/supabase-js";
+import { Provider, createClient } from "@supabase/supabase-js";
 import { createClientForServer } from "./server";
 import { redirect } from "next/navigation";
 
@@ -30,9 +30,10 @@ const signOut = async () => {
   await supabase.auth.signOut();
 };
 
+
+
 const withdraw = async (userId:string) => {
-  const supabase = await createClientForServer();
-  const { error } = await supabase.auth.admin.deleteUser(userId);
+  const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
   if (error) throw error;
 }
 

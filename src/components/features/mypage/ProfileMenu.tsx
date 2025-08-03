@@ -8,28 +8,32 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { signOut } from "@/lib/supabase/actions";
+import { signOut, withdraw } from "@/lib/supabase/actions";
 
-export default function ProfileMenu() {
+export default function ProfileMenu({ userId }: { userId: string }) {
   return (
     <ul className="w-full">
       <li className="border-b p-4 cursor-pointer" onClick={signOut}>
         로그아웃
       </li>
-      <AlertDialog>
-        <AlertDialogTrigger>
-          <li className="border-b p-4 cursor-pointer">회원탈퇴</li>
-        </AlertDialogTrigger>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>정말 탈퇴하시겠습니까?</AlertDialogTitle>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction>Continue</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <li className="border-b p-4 cursor-pointer text-left">
+        <AlertDialog>
+          <AlertDialogTrigger>
+            <span>회원 탈퇴</span>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>정말 탈퇴하시겠습니까?</AlertDialogTitle>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>취소</AlertDialogCancel>
+              <form action={withdraw.bind(null, userId)}>
+                <AlertDialogAction type="submit">탈퇴</AlertDialogAction>
+              </form>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </li>
     </ul>
   );
 }
